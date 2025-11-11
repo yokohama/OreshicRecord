@@ -1,0 +1,18 @@
+auto_interactive = [
+  "msfconsole",
+  "ssh",
+  "telnet",
+  "ftp",
+  "mysql",
+  "psql",
+  "redis-cli",
+  "bash",
+  "sh",
+  "zsh",
+  "tmux",
+  "htop",
+  "top",
+  "ping",
+  "gobuster",
+  "nslookup"
+]
