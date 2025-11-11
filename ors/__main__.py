@@ -1,4 +1,5 @@
 import sys
+from pathlib import Path
 
 import ors.cli
 import ors.features
@@ -12,33 +13,43 @@ def main():
 
     args = ors.cli.parser.parse_args(sys.argv[1:])
 
-    # このプロセス内だけトラック名を設定/解除（親シェルには影響しない）
-    #if args.track:
-    #    os.environ["ORESHIC_TRACK"] = args.track
-    #    print(f("[ors] track set (process): {args.track}"))
-    #    if not args.command and not args.search and not args.unset:
-    #        return
+    if args.track:
+        with open(
+            ors.core.settings.get_track_name_file(),
+            "w",
+            encoding="utf-8"
+        ) as f:
+            f.write(args.track)
 
-    #if args.unset:
-    #    os.environ.pop("ORESHIC_TRACK", None)
-    #    print("[ors] track unset (process)")
-    #    if not args.command and not args.search:
-    #        return
+        print(f"[ors] track set (process): {args.track}")
+
+        if not args.command and not args.search and not args.unset:
+            return
+
+    if args.unset:
+        path = Path(ors.core.settings.get_track_name_file())
+        if path.exists():
+            path.unlink()
+
+        print("[ors] track unset (process)")
+
+        if not args.command and not args.search:
+            return
 
     # search mode
     if args.search:
         mode = args.search[0].lower()
 
         if mode == "command":
-            ors.features.command.hoge(args)
+            ors.features.command.run(args)
             sys.exit(2)
 
         elif mode == "track":
-            ors.features.track.moge(args)
+            ors.features.track.run(args)
             sys.exit(2)
 
         elif mode == "writeup":
-            ors.features.writeup.fuga(args)
+            ors.features.writeup.run(args)
             sys.exit(2)
 
         else:
@@ -54,7 +65,7 @@ def main():
         sys.exit(2)
 
     # recording mode
-    ors.features.recording.bar(args)
+    ors.features.recording.run(args)
     return 0
 
 

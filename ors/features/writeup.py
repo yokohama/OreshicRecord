@@ -12,7 +12,7 @@ def _list_writeup_level(indices: list[int]):
     rows = []
     for i, (name, ch) in enumerate(children, 1):
         rows.append([str(i), name, str(_wu_leaf_count(ch))])
-    print(ors.core.ascii_table(headers, rows))
+    print(ors.core.table.ascii_table(headers, rows))
 
 
 class _WUNode:
@@ -26,7 +26,7 @@ class _WUNode:
 # writeups ディレクトリ配下の *.md を '_' 区切りで木構造にする
 def _build_writeup_tree() -> _WUNode:
     root = _WUNode()
-    outdir = ors.core.get_writeups_dir().expanduser()
+    outdir = ors.core.settings.get_writeups_dir().expanduser()
     if not outdir.exists():
         return root
     for p in sorted(outdir.glob("*.md")):
@@ -103,8 +103,8 @@ def _wu_sorted_children(node: _WUNode) -> list[tuple[str, _WUNode]]:
     return sorted(node.children.items(), key=lambda kv: kv[0])
 
 
-def fuga(args):
-    # writeup: 任意階層ナビ。--run/--del は非対応。
+# writeup: 任意階層ナビ。--run/--del は非対応。
+def run(args):
     if args.run or args.delete:
         print(
             "[ors] writeup does not support --run/--del",
@@ -112,11 +112,6 @@ def fuga(args):
         )
         sys.exit(2)
 
-    # 例:
-    #   ors -s writeup             -> ルートを一覧
-    #   ors -s writeup 2           -> 第2項目を下りた階層を一覧 or 単一なら表示
-    #   ors -s writeup 2 2         -> さらに下の階層を一覧 or 単一なら表示
-    #   ors -s writeup 2 2 1       -> 末端なら md 表示
     ids = []
     for tok in args.search[1:]:
         if not tok.isdigit():
@@ -138,8 +133,10 @@ def fuga(args):
         # まだ下に階層がある -> 一覧
         _list_writeup_level(ids)
         return
+
     # 葉なら中身表示（ファイル必須）
     if node.file_path:
         _show_writeup_by_indices(ids)
         return
+
     print("[ors] empty node", file=sys.stderr)

@@ -1,7 +1,7 @@
 import os
 
 
-def build_prompt():
+def build():
     user = os.getenv("USER", "<unknown>")
     cwd = os.getcwd()
     home = os.path.expanduser("~")

@@ -15,11 +15,14 @@ def _extract_cmd_from_prompt_line(cmdline: str) -> str:
 
 def load_entries_generic(base_dir: Path, name: str):
     p = base_dir / f"{name}.md"
+
     if not p.exists():
         print(f"[ors] not found: {p}", file=sys.stderr)
         sys.exit(2)
+
     lines = p.read_text(encoding="utf-8", errors="replace").splitlines()
     entries, i, n = [], 0, len(lines)
+
     while i < n:
         if lines[i].startswith("##"):
             title = lines[i][2:].strip()
@@ -61,8 +64,11 @@ def resolve_name_by_id(id_str: str, files: list[Path], kind: str) -> str:
             file=sys.stderr
         )
         sys.exit(2)
+
     idx = int(id_str)
+
     if 1 <= idx <= len(files):
         return files[idx - 1].stem
+
     print(f"[ors] ID out of range (1..{len(files)})", file=sys.stderr)
     sys.exit(2)

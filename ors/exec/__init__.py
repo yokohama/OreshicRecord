@@ -1,6 +1,6 @@
-from . import pty_runner, stream_runner
+from . import pty, stream
 
 __all__ = [
-    "pty_runner",
-    "stream_runner"
+    "pty",
+    "stream"
 ]

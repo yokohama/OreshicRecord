@@ -29,6 +29,17 @@ def _disp_width(s: str) -> int:
     return len(str(s))
 
 
+def _winsize_from_stdout():
+    try:
+        s = struct.pack("HHHH", 0, 0, 0, 0)
+        rows, cols, _, _ = struct.unpack(
+            "HHHH", fcntl.ioctl(sys.stdout.fileno(), termios.TIOCGWINSZ, s)
+        )
+        return rows, cols
+    except Exception:
+        return 24, 80
+
+
 def ascii_table(
         headers: list[str], rows: list[list[str]],
         max_total_width: int | None = None) -> str:
@@ -80,17 +91,6 @@ def ascii_table(
         ) + " |")
         out.append(top)
     return "\n".join(out)
-
-
-def _winsize_from_stdout():
-    try:
-        s = struct.pack("HHHH", 0, 0, 0, 0)
-        rows, cols, _, _ = struct.unpack(
-            "HHHH", fcntl.ioctl(sys.stdout.fileno(), termios.TIOCGWINSZ, s)
-        )
-        return rows, cols
-    except Exception:
-        return 24, 80
 
 
 def set_winsize(fd):

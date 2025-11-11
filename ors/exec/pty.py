@@ -24,7 +24,7 @@ _LAST_OUT_TAIL = ""
 _PASS_PROMPT_RE = re.compile(r"(?i)(password|passphrase).{0,40}:\s*$")
 
 
-def run_via_pty(cmd_list, fp, silent):
+def run(cmd_list, fp, silent):
     global _KBD_BUF, _IN_SECRET, _LAST_OUT_TAIL
 
     master_fd, slave_fd = pty.openpty()
@@ -85,7 +85,7 @@ def run_via_pty(cmd_list, fp, silent):
             os.write(sys.stdout.fileno(), decoded.encode(errors="replace"))
             # ファイルへ
             if not silent:
-                fp.write(ors.core.clean.clean_term_chunk(decoded))
+                fp.write(ors.core.clean.term_chunk(decoded))
                 fp.flush()
             # 末尾更新（直近 200 文字だけ保持）
             _LAST_OUT_TAIL = (_LAST_OUT_TAIL + decoded)[-200:]

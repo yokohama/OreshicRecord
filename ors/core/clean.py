@@ -14,7 +14,7 @@ except NameError:
     _CLEAN_STATE = {"buf": [], "pos": 0}
 
 
-def clean_term_flush() -> str:
+def term_flush() -> str:
     """未改行で残っている最終行をフラッシュして返す（改行付き）。"""
     buf = _CLEAN_STATE.get("buf", [])
     pos = _CLEAN_STATE.get("pos", 0)
@@ -27,7 +27,7 @@ def clean_term_flush() -> str:
     return s
 
 
-def clean_term_chunk(s: str) -> str:
+def term_chunk(s: str) -> str:
     """ステートフル版：CR上書きで残りを切り捨てる実装"""
     if not s:
         return s
