@@ -14,5 +14,6 @@ auto_interactive = [
   "top",
   "ping",
   "gobuster",
-  "nslookup"
+  "nslookup",
+  "ffuf"
 ]
