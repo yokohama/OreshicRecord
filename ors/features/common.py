@@ -1,4 +1,5 @@
 import sys
+import subprocess
 import shlex
 from pathlib import Path
 
@@ -120,6 +121,4 @@ def run_entry_by_ids(
         sys.exit(2)
 
     cmd_list = shlex.split(e["cmd"])
-    cmd = Path(cmd_list[0]).name.lower()
-
-    # TODO: ここで、cmdを実行
+    subprocess.run(cmd_list)
