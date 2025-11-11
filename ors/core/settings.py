@@ -5,7 +5,7 @@ from pathlib import Path
 
 def get_base_dir() -> Path:
     return Path(
-        os.path.expanduser(os.getenv("ORESHIC_RECORDS_DIR"))
+        os.path.expanduser(os.getenv("ORESHIC_RECORD_DIR"))
     )
 
 

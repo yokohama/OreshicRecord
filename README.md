@@ -13,25 +13,7 @@ git clone git@github.com:yokohama/OreshicRecord.git
 
 ```
 cd OreshicRecord
-./install.sh
+echo "export ORESHIC_RECORD_DIR=$(pwd)/OreshicRecord" >> ~/.zshrc
+source ~/.zshrc
 ```
 
-
-3. Quick start
-
-```
-# print help
-ors
-
-# command recoding with comment message
-ors -m "test ping" ping localhost
-
-# show list my commands
-ors -s command
-
-# show my command ditail
-ors -s command ping -v 1
-
-# run command from my command list
-ors -s command ping --run 1
-```

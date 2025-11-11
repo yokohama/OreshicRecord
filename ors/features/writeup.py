@@ -4,43 +4,111 @@ from pathlib import Path
 import ors.core
 
 
-# 指定階層で子ノードを表形式表示（Name / Count=配下ファイル数）
+# ==========================================================
+# ノード構造定義
+# ==========================================================
+class _WUNode:
+    __slots__ = ("children", "file_path", "rel_path")
+
+    def __init__(self, rel_path: Path | None = None):
+        self.children: dict[str, "_WUNode"] = {}
+        self.file_path: Path | None = None
+        self.rel_path: Path | None = rel_path
+
+
+# ==========================================================
+# writeups ディレクトリ配下の実ディレクトリ階層を木構造にする
+# ==========================================================
+def _build_writeup_tree() -> _WUNode:
+    root = _WUNode(rel_path=Path(""))
+    basedir = ors.core.settings.get_writeups_dir().expanduser()
+    if not basedir.exists():
+        return root
+
+    # すべてのディレクトリをノード化（空フォルダも表示対象）
+    for d in basedir.rglob("*"):
+        if d.is_dir():
+            rel = d.relative_to(basedir)
+            if not rel.parts:
+                continue
+            node = root
+            acc = Path("")
+            for token in rel.parts:
+                acc = acc / token
+                node = node.children.setdefault(token, _WUNode(rel_path=acc))
+
+    # Markdown「ファイル」だけをノード化（*.md ディレクトリは除外）
+    for p in sorted(basedir.rglob("*.md")):
+        if not p.is_file():
+            continue
+        rel = p.relative_to(basedir)
+        node = root
+        acc = Path("")
+        for i, token in enumerate(rel.parts):
+            acc = acc / token
+            node = node.children.setdefault(token, _WUNode(rel_path=acc))
+            if i == len(rel.parts) - 1:
+                node.file_path = p
+    return root
+
+
+# ==========================================================
+# パンくず生成（indices → ["htb", "room1"] → "htb > room1"）
+# ==========================================================
+def _breadcrumb(indices: list[int]) -> str:
+    if not indices:
+        return ""
+    names: list[str] = []
+    root = _build_writeup_tree()
+    node = root
+    for idx in indices:
+        children = _wu_sorted_children(node)
+        if not (1 <= idx <= len(children)):
+            return ""
+        name, node = children[idx - 1]
+        names.append(name)
+    return " > ".join(names)
+
+
+# ==========================================================
+# 指定階層で子ノードを表形式表示（Name / Count）
+# ==========================================================
 def _list_writeup_level(indices: list[int]):
     root = _build_writeup_tree()
     node, children = _wu_get_by_indices(root, indices)
     headers = ["ID", "Name", "Count"]
     rows = []
+
     for i, (name, ch) in enumerate(children, 1):
-        rows.append([str(i), name, str(_wu_leaf_count(ch))])
+        is_file_leaf = _is_md_file_leaf(ch)
+        count = "" if is_file_leaf else str(_wu_leaf_count(ch))
+        rows.append([str(i), name, count])
+
+    crumb = _breadcrumb(indices)
+    if crumb:
+        print()              # 上の空行
+        print(crumb)
+        print()              # 下の空行
+
     print(ors.core.table.ascii_table(headers, rows))
 
 
-class _WUNode:
-    __slots__ = ("children", "file_path")
-
-    def __init__(self):
-        self.children: dict[str, _WUNode] = {}
-        self.file_path: Path | None = None
-
-
-# writeups ディレクトリ配下の *.md を '_' 区切りで木構造にする
-def _build_writeup_tree() -> _WUNode:
-    root = _WUNode()
-    outdir = ors.core.settings.get_writeups_dir().expanduser()
-    if not outdir.exists():
-        return root
-    for p in sorted(outdir.glob("*.md")):
-        stem = p.stem  # 拡張子なし
-        parts = stem.split("_") if "_" in stem else [stem]
-        node = root
-        for token in parts:
-            node = node.children.setdefault(token, _WUNode())
-        node.file_path = p  # このパスでファイルが存在
-    return root
+# ==========================================================
+# md ファイル葉の判定（構造＋拡張子で厳密化）
+# ==========================================================
+def _is_md_file_leaf(node: _WUNode) -> bool:
+    if node.file_path is not None and node.file_path.is_file() and not node.children:
+        return True
+    if node.rel_path is not None and node.rel_path.suffix.lower() == ".md" and not node.children:
+        return True
+    return False
 
 
-# indices で辿ったノードがファイル（葉）なら md を表示。階層が残っていれば一覧表示。
+# ==========================================================
+# 指定ノード（indices指定）の内容を表示
+# ==========================================================
 def _show_writeup_by_indices(indices: list[int]):
+    basedir = ors.core.settings.get_writeups_dir().expanduser()
     root = _build_writeup_tree()
     node = root
     for idx in indices:
@@ -50,66 +118,72 @@ def _show_writeup_by_indices(indices: list[int]):
             sys.exit(2)
         _, node = children[idx - 1]
 
-    # 子が存在するなら一覧表示、子が無く file_path があれば中身表示
-    if node.children:
-        _list_writeup_level(indices)
-        return
-
-    if node.file_path:
-        try:
-            content = node.file_path.read_text(
-                encoding="utf-8",
-                errors="replace"
-            )
-        except FileNotFoundError:
-            print(f"[ors] not found: {node.file_path}", file=sys.stderr)
+    if _is_md_file_leaf(node):
+        fp: Path | None = node.file_path
+        if fp is None and node.rel_path is not None:
+            fp = basedir / node.rel_path
+        if fp is None:
+            print("[ors] empty node", file=sys.stderr)
             sys.exit(2)
-
+        try:
+            content = fp.read_text(encoding="utf-8", errors="replace")
+        except FileNotFoundError:
+            print(f"[ors] not found: {fp}", file=sys.stderr)
+            sys.exit(2)
         sys.stdout.write(content)
         return
 
-    # 子もファイルもない（空ノード）
-    print("[ors] empty node", file=sys.stderr)
-    sys.exit(2)
+    _list_writeup_level(indices)
 
 
-# 配下に存在するファイル（葉）の総数
+# ==========================================================
+# 配下に存在する Markdown ファイル（葉）の総数をカウント
+# ==========================================================
 def _wu_leaf_count(node: _WUNode) -> int:
-    cnt = 1 if node.file_path is not None else 0
+    cnt = 1 if _is_md_file_leaf(node) else 0
     for ch in node.children.values():
         cnt += _wu_leaf_count(ch)
     return cnt
 
 
+# ==========================================================
 # indices で辿った先のノードと、そのノード直下の (name,node) 一覧を返す
+# ==========================================================
 def _wu_get_by_indices(
-        root: _WUNode,
-        indices: list[int]) -> tuple[_WUNode, list[tuple[str, _WUNode]]]:
-
+    root: _WUNode, indices: list[int]
+) -> tuple[_WUNode, list[tuple[str, _WUNode]]]:
     node = root
     for idx in indices:
         children = _wu_sorted_children(node)
         if not (1 <= idx <= len(children)):
             print("[ors] ID out of range", file=sys.stderr)
             sys.exit(2)
-
         _, node = children[idx - 1]
-
     return node, _wu_sorted_children(node)
 
 
-# 子を名前でソートして [(name, node)] を返す
+# ==========================================================
+# 子を (ディレクトリ優先, 名前順) でソートして返す
+# ==========================================================
 def _wu_sorted_children(node: _WUNode) -> list[tuple[str, _WUNode]]:
-    return sorted(node.children.items(), key=lambda kv: kv[0])
+    items = list(node.children.items())
+
+    def _sort_key(kv: tuple[str, _WUNode]):
+        name, nd = kv
+        is_dir = bool(nd.children)
+        is_file_only = _is_md_file_leaf(nd)
+        kind_rank = 0 if is_dir else 1 if is_file_only else 0
+        return (kind_rank, name)
+
+    return sorted(items, key=_sort_key)
 
 
-# writeup: 任意階層ナビ。--run/--del は非対応。
+# ==========================================================
+# メインエントリーポイント
+# ==========================================================
 def run(args):
     if args.run or args.delete:
-        print(
-            "[ors] writeup does not support --run/--del",
-            file=sys.stderr
-        )
+        print("[ors] writeup does not support --run/--del", file=sys.stderr)
         sys.exit(2)
 
     ids = []
@@ -117,7 +191,7 @@ def run(args):
         if not tok.isdigit():
             print(
                 "[ors] numeric ID required at each level (e.g. `ors -s writeup 2 1`)",
-                file=sys.stderr
+                file=sys.stderr,
             )
             sys.exit(2)
         ids.append(int(tok))
@@ -126,17 +200,11 @@ def run(args):
         _list_writeup_level([])
         return
 
-    # ノードが葉かどうかで出し分け
     root = _build_writeup_tree()
-    node, children = _wu_get_by_indices(root, ids)
-    if node.children:
-        # まだ下に階層がある -> 一覧
-        _list_writeup_level(ids)
-        return
+    node, _ = _wu_get_by_indices(root, ids)
 
-    # 葉なら中身表示（ファイル必須）
-    if node.file_path:
+    if _is_md_file_leaf(node):
         _show_writeup_by_indices(ids)
         return
 
-    print("[ors] empty node", file=sys.stderr)
+    _list_writeup_level(ids)
