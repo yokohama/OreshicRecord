@@ -12,5 +12,4 @@ Shift + Fn + i
 :ClipPasteImg
 ```
 
-
-![](./md_images/img-20251112-173528-273.png)
+![](./md_images/img-20251113-023829-520.png)

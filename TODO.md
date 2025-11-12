@@ -18,3 +18,15 @@
 /ors/features/writeup.py#_show_writeup_by_indices()
 
 show_entry_detail_by_ids()は中で加工している。むしろ、_show_wirteup_by_indices()に寄せたほうがシンプル。
+
+
+# リダイレクトの後が記録されない
+
+|や,>など
+
+```
+ors -m "クリップボードの中身を削除" echo -n | xclip -selection clipboard
+ors -m "SUID検索" find / -perm -4000 -type f 2>/dev/null
+```
+
+# リダイレクトを含むコマンドの、--runが失敗する

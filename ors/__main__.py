@@ -13,6 +13,9 @@ def main():
 
     args = ors.cli.parser.parse_args(sys.argv[1:])
 
+    #print(args)
+    #return 0
+
     if args.track:
         with open(
             ors.core.settings.get_track_name_file(),
