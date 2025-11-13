@@ -1,4 +1,4 @@
-from . import search, command, track, writeup, recording, common
+from . import search, command, track, writeup, recording, common, query
 
 
 __all__ = [
@@ -7,5 +7,6 @@ __all__ = [
     "track",
     "writeup",
     "recording",
-    "common"
+    "common",
+    "query"
 ]

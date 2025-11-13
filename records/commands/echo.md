@@ -1,7 +1,7 @@
 ## クリップボードの中身を削除
 
 ```bash
-banister@~/projects/OreshicRecord kali$ echo -n
+banister@~/projects/OreshicRecord kali$ echo -n | xclip -selection clipboard
 ```
 
 ```

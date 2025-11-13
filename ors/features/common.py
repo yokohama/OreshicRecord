@@ -121,4 +121,12 @@ def run_entry_by_ids(
         sys.exit(2)
 
     cmd_list = shlex.split(e["cmd"])
-    subprocess.run(cmd_list)
+    print(f"[ors] executing: {' '.join(cmd_list)}")
+    try:
+        subprocess.run(cmd_list)
+    except FileNotFoundError:
+        print(f"[ors] command not found: {cmd_list[0]}", file=sys.stderr)
+        sys.exit(2)
+    except Exception as ex:
+        print(f"[ors] execution failed: {ex}", file=sys.stderr)
+        sys.exit(2)

@@ -16,18 +16,20 @@ def build_parser() -> argparse.ArgumentParser:
         "-s", "--search",
         nargs="+",
         metavar="SEARCH",
-        help="search mode: -s (command|track|writeup) [id ...]"
+        help="search mode: -s (command|track|writeup|query) [id ...]"
     )
     parser.add_argument(
         "--run",
         action="store_true",
-        help="with -s (command|track) <file_id> <entry_id> -> re-run that entry now and record"
+        help="with -s (command|track) <file_id> <entry_id> -> "
+             "re-run that entry now and record"
     )
     parser.add_argument(
         "--del",
         dest="delete",
         action="store_true",
-        help="with -s (command|track) <file_id> <entry_id> -> delete that entry (if Count becomes 0, remove file)"
+        help="with -s (command|track) <file_id> <entry_id> -> "
+             "delete that entry (if Count becomes 0, remove file)"
     )
     parser.add_argument(
         "-m", "--message",

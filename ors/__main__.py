@@ -13,8 +13,8 @@ def main():
 
     args = ors.cli.parser.parse_args(sys.argv[1:])
 
-    #print(args)
-    #return 0
+    # print(args)
+    # return 0
 
     if args.track:
         with open(
@@ -55,9 +55,13 @@ def main():
             ors.features.writeup.run(args)
             sys.exit(2)
 
+        elif mode == "query":
+            ors.features.query.run(args)
+            sys.exit(2)
+
         else:
             print(
-                "[ors] usage: -s (command|track|writeup) [id ...]",
+                "[ors] usage: -s (command|track|writeup|query) [id ...]",
                 file=sys.stderr
             )
             sys.exit(2)
