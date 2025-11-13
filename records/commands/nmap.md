@@ -25,3 +25,12 @@ banister@~/projects/OreshicRecord kali$ nmap -p- xx.xx.xx.xx
 ```
 ```
 
+## pingスキャンのみ実行
+
+```bash
+banister@~/projects/OreshicRecord kali$ nmap -sn xx.xx.xx.xx
+```
+
+```
+```
+
