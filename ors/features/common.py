@@ -4,6 +4,7 @@ import shlex
 from pathlib import Path
 
 import ors.core.settings
+from ors.core.image_display import display_content_with_images
 
 
 def _get_path_by_mode(mode):
@@ -58,13 +59,21 @@ def show_entry_detail_by_ids(mode, file_id: str, entry_id: str):
         print("[ors] invalid entry id", file=sys.stderr)
         sys.exit(2)
 
-    print(f"# {e['title']}\n")
-    print("```bash")
+    # MDファイルのパスを取得（画像表示のため）
+    path, name = _get_entry_name(mode, file_id)
+    md_path = path / f"{name}.md"
+
+    # 表示内容を構築
+    content = f"# {e['title']}\n\n"
+    content += "```bash\n"
     if e['cmd']:
-        print(e['cmd'])
-    print()
-    print(e['out'] or "(no output)")
-    print("```\n")
+        content += e['cmd'] + "\n"
+    content += "\n"
+    content += (e['out'] or "(no output)") + "\n"
+    content += "```\n\n"
+
+    # 画像対応の表示関数を使用
+    display_content_with_images(content, md_path)
 
 
 # エントリ削除。削除後の Count が 0 ならファイルも削除（command）
@@ -94,14 +103,18 @@ def delete_entry_by_ids(mode, file_id: str, entry_id: str):
     if remaining == 0:
         try:
             md_path.unlink()
-            print(f"[ors] deleted entry {idx} and removed file: {name}.md (Count=0)")
+            msg = f"[ors] deleted entry {idx} and removed file: {name}.md " \
+                  f"(Count=0)"
+            print(msg)
         except Exception as e:
             print(
                 f"[ors] deleted entry {idx}, but failed to remove file: {e}",
                 file=sys.stderr
             )
     else:
-        print(f"[ors] deleted: {name} entry {idx} (remaining Count={remaining})")
+        msg = f"[ors] deleted: {name} entry {idx} " \
+              f"(remaining Count={remaining})"
+        print(msg)
 
 
 def run_entry_by_ids(

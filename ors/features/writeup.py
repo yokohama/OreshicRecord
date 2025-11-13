@@ -2,6 +2,7 @@ import sys
 from pathlib import Path
 
 import ors.core
+from ors.core.image_display import display_content_with_images
 
 
 # ==========================================================
@@ -86,9 +87,9 @@ def _list_writeup_level(indices: list[int]):
 
     crumb = _breadcrumb(indices)
     if crumb:
-        print()              # 上の空行
+        print()
         print(crumb)
-        print()              # 下の空行
+        print()
 
     print(ors.core.table.ascii_table(headers, rows))
 
@@ -97,9 +98,9 @@ def _list_writeup_level(indices: list[int]):
 # md ファイル葉の判定（構造＋拡張子で厳密化）
 # ==========================================================
 def _is_md_file_leaf(node: _WUNode) -> bool:
-    if node.file_path is not None and node.file_path.is_file() and not node.children:
+    if (node.file_path is not None and node.file_path.is_file() and not node.children):
         return True
-    if node.rel_path is not None and node.rel_path.suffix.lower() == ".md" and not node.children:
+    if (node.rel_path is not None and node.rel_path.suffix.lower() == ".md" and not node.children):
         return True
     return False
 
@@ -130,7 +131,7 @@ def _show_writeup_by_indices(indices: list[int]):
         except FileNotFoundError:
             print(f"[ors] not found: {fp}", file=sys.stderr)
             sys.exit(2)
-        sys.stdout.write(content)
+        display_content_with_images(content, fp)
         return
 
     _list_writeup_level(indices)
