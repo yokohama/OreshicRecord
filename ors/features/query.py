@@ -29,7 +29,8 @@ def run(args):
             for entry in entries:
                 if (search_word in entry["cmd"] or
                         search_word in entry["out"] or
-                        search_word in entry["title"]):
+                        search_word in entry["title"] or
+                        search_word in md_path.stem):
                     entry["file_path"] = md_path
                     matched_entries.append(entry)
 
