@@ -3,6 +3,7 @@ import struct
 import fcntl
 import termios
 import sys
+from unicodedata import east_asian_width
 
 
 # optional: better column width for CJK etc.
@@ -23,10 +24,7 @@ def _pad_to_width(s: str, width: int) -> str:
 def _disp_width(s: str) -> int:
     if s is None:
         return 0
-    if _wcswidth:
-        w = _wcswidth(str(s))
-        return w if w >= 0 else len(str(s))
-    return len(str(s))
+    return sum(1 + (east_asian_width(c) in "WF") for c in s)
 
 
 def _winsize_from_stdout():
@@ -37,7 +35,7 @@ def _winsize_from_stdout():
         )
         return rows, cols
     except Exception:
-        return 24, 80
+        return 30, 120
 
 
 def _wrap_cell_content(text: str, width: int) -> list[str]:

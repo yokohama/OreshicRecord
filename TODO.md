@@ -33,3 +33,8 @@ ors -m "SUID検索" find / -perm -4000 -type f 2>/dev/null
 
 一旦良しとする
 
+# 4. テーブル表示の崩れ
+
+- kaliでは全く同じコードでTitleも、commandも長い場合はターミナル幅に合わせて改行される。
+- しかしubuntuでは崩れる。
+- 問題となる実行コマンドは、ors -s query ホスト
