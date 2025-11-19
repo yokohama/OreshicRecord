@@ -30,3 +30,6 @@ ors -m "SUID検索" find / -perm -4000 -type f 2>/dev/null
 ```
 
 # 3. リダイレクトを含むコマンドの、--runが失敗する
+
+一旦良しとする
+

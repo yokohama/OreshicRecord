@@ -38,7 +38,7 @@ def run(cmd_list, fp, silent):
         old_tty = None
 
     def _on_winch(signum, frame):
-        ors.core.set_winsize(master_fd)
+        ors.core.table.set_winsize(master_fd)
 
     old_winch = signal.getsignal(signal.SIGWINCH)
     signal.signal(signal.SIGWINCH, _on_winch)

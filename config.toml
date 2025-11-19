@@ -16,5 +16,6 @@ auto_interactive = [
   "gobuster",
   "nslookup",
   "ffuf",
-  "docker"
+  "docker",
+  "linpeas.sh"
 ]
