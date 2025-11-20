@@ -28,7 +28,7 @@ def _build_writeup_tree() -> _WUNode:
 
     # すべてのディレクトリをノード化（空フォルダも表示対象）
     for d in basedir.rglob("*"):
-        if d.is_dir():
+        if d.is_dir() and d.name != "md_images":  # md_imagesフォルダを除外
             rel = d.relative_to(basedir)
             if not rel.parts:
                 continue

