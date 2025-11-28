@@ -23,7 +23,9 @@ OreshicRecordは、コマンドの実行記録や作業メモを保存・検索�
     - `settings.py`: 設定関連の関数群
   - `features`: 各機能の実装
     - `command.py`: コマンド実行記録関連の機能
+    - `query.py`: フリーワード検索
     - `recording.py`: 記録機能の実装
+    - `search.py`: command, track, writeupの検索
     - `track.py`: トラック機能の実装
     - `writeup.py`: ライトアップ機能の実装
   - `exec`: コマンド実行関連 
