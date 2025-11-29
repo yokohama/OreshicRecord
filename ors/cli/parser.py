@@ -9,7 +9,7 @@ import argparse
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="org",
+        prog="ors",
         description="Execute a command and save its output to Markdown."
     )
     parser.add_argument(
