@@ -77,3 +77,4 @@ echo "export ORESHIC_RECORD_DIR=$(pwd)" >> ~/.zshrc
 # 設定を反映
 source ~/.zshrc
 ```
+
