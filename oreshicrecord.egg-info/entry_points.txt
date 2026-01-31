@@ -1,0 +1,2 @@
+[console_scripts]
+ors = ors.__main__:main

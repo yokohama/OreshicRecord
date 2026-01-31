@@ -44,3 +44,34 @@ HMAC-MD5, HMAC-SHA1, HMAC-SHA224, HMAC-SHA256, HMAC-SHA384, HMAC-SHA512,
 dummy, crypt
 ```
 
+## 高速化。CUPコア数指定。フォーマット指定。リスト指定。
+
+```bash
+banister@~/projects/oscp/thm/networkservices2 Tinkpad$ john --fork=14 --format=mysql-sha1 --wordlist=/usr/share/wordlists/rockyou.txt hash.txt
+```
+
+```
+Loaded 1 password hash (mysql-sha1, MySQL 4.1+ [SHA1 256/256 AVX2 8x])
+Created directory: /home/banister/.john
+doggie           (?)     
+Using default input encoding: UTF-8
+Node numbers 1-14 of 14 (fork)
+6 1g 0:00:00:00 DONE (2026-01-13 09:21) 20.00g/s 2400p/s 2400c/s 2400C/s annie..ingeras
+Press Ctrl-C to abort, or send SIGUSR1 to john process for status
+3 0g 0:00:00:00 DONE (2026-01-13 09:21) 0g/s 3104Kp/s 3104Kc/s 3104KC/s   3879.ie168
+2 0g 0:00:00:00 DONE (2026-01-13 09:21) 0g/s 3201Kp/s 3201Kc/s 3201KC/s xCvBnM,
+13 0g 0:00:00:00 DONE (2026-01-13 09:21) 0g/s 3201Kp/s 3201Kc/s 3201KC/s  32500000 ..                  
+12 0g 0:00:00:00 DONE (2026-01-13 09:21) 0g/s 2926Kp/s 2926Kc/s 2926KC/s        1
+14 0g 0:00:00:00 DONE (2026-01-13 09:21) 0g/s 3201Kp/s 3201Kc/s 3201KC/s  3117548331..            
+10 0g 0:00:00:00 DONE (2026-01-13 09:21) 0g/s 3201Kp/s 3201Kc/s 3201KC/s  0188579722..      7
+5 0g 0:00:00:00 DONE (2026-01-13 09:21) 0g/s 3201Kp/s 3201Kc/s 3201KC/s    3197337.a6_123
+7 0g 0:00:00:00 DONE (2026-01-13 09:21) 0g/s 3012Kp/s 3012Kc/s 3012KC/s  08 22 0128..     mara
+9 0g 0:00:00:00 DONE (2026-01-13 09:21) 0g/s 3304Kp/s 3304Kc/s 3304KC/s    0109381602..     123d
+4 0g 0:00:00:00 DONE (2026-01-13 09:21) 0g/s 3012Kp/s 3012Kc/s 3012KC/s  8751617171854.abygurl69
+8 0g 0:00:00:00 DONE (2026-01-13 09:21) 0g/s 3012Kp/s 3012Kc/s 3012KC/s  _ 09..     54321
+11 0g 0:00:00:00 DONE (2026-01-13 09:21) 0g/s 2845Kp/s 2845Kc/s 2845KC/s   cq90000..       1234567
+1 0g 0:00:00:00 DONE (2026-01-13 09:21) 0g/s 2695Kp/s 2695Kc/s 2695KC/s    667306   ..           
+Waiting for 13 children to terminate
+Session completed. 
+```
+
